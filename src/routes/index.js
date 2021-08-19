@@ -5,7 +5,9 @@ const DB = require('../controller/db.controller')
 
 let routes = (app) => {
     router.get("/", Port.TestInit);
-    // router.get("/getData", Port.TestInit);
+    router.get("/getList", DB.getList);
+    router.get("/getCalendar", DB.getCalendar);
+    router.post("/login", DB.getUser);
     app.use(router);
 };
 
