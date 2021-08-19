@@ -1,8 +1,10 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const mysql = require('mysql');
-const { response } = require('express');
+const fs = require('fs');
 require('dotenv').config();
+
+const private = fs.readFileSync('./src/env/private.key', "utf-8");
 
 // Connection setup
 const db = mysql.createConnection({
@@ -51,11 +53,9 @@ async function getData(sql) {
  * @param {*} res 
  */
 const getUser = (req, res) => {
-    console.log(req);
     let username = req.headers.user;
     let password = req.headers.pass;
     let response = null;
-    console.log("set");
 
     let SqlSelect = `Select * from Accounts where username = "${username}"`;
     try {
@@ -64,9 +64,24 @@ const getUser = (req, res) => {
         if(data.length > 0 && data.length < 2) {
             bcrypt.compare(password, data[0].password, (bcryptErr, verified) => {
                 if(verified) {
-                    response = {success: true, user: username, id: data[0].id};
-                    console.log(response);
-                    res.send(response);
+                    jwt.sign(
+                        {
+                            exp: Math.floor(Date.now() / 1000) + (60 * 60* 24), 
+                            data: {
+                                user: username, 
+                                id: data[0].id
+                            }
+                        }, 
+                        private, 
+                        { 
+                            algorithm: 'HS256' 
+                        }, 
+                        (err, token) => {
+                            response = {success: true, token: token, data: {user: data[0].username, id: data[0].id}};
+                            res.send(response);
+                        }
+                    );
+                    
                 }
                 if(bcryptErr) {
                     res.send({success: false});
