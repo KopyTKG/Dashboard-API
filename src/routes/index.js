@@ -9,6 +9,7 @@ let routes = async (app) => {
     router.post("/getList", DB.getList);
     router.post("/getCalendar", DB.getCalendar);
     router.post("/login", DB.getUser);
+    router.post("/reset", DB.getReset);
     app.use(router);
 };
 

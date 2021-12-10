@@ -20,6 +20,9 @@ api.listen(port, () => {
     console.log("DB user : "+process.env.DB_USER)
     console.log("DB pass : "+process.env.DB_PASS)
     console.log("DB database : "+process.env.DB_DB)
+    console.log("--------------------------------------")
+    console.log("MAIL user : "+process.env.MAIL_USER)
+    console.log("MAIL testing : "+process.env.MAIL_TESTING)
 
     
     

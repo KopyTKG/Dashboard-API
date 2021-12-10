@@ -1,6 +1,8 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const mysql = require('mysql');
+var nodemailer = require('nodemailer');
+
 require('dotenv').config();
 
 const fs = require('fs');
@@ -16,6 +18,14 @@ const db = mysql.createConnection({
     password:   process.env.DB_PASS,
     database:   process.env.DB_DB
 })
+
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.MAIL_USER,
+      pass: process.env.MAIL_PASS
+    }
+  });
 
 
 // mysql connection
@@ -223,9 +233,33 @@ const getCalendar = (req, res) => {
     }
 }
 
+const subject = "Password reset. https://thekrew.lab.com";
+let text = "This email is just for testing reason.";
+
+const getReset = (req, res) => {
+    let reciver = process.env.MAIL_TESTING;
+    let mailOptions = {
+        from: process.env.MAIL_USER,
+        to: reciver,
+        subject: subject,
+        text: text
+      };
+
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+          res.send({success: false});
+        } else {
+        //   console.log('Email sent: ' + info.response);
+          res.send({success: true});
+        }
+      });
+}
+
 module.exports = {
     getUser,
     verify,
     getList,
-    getCalendar
+    getCalendar,
+    getReset
 }
