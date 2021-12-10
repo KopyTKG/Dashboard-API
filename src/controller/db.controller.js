@@ -237,23 +237,25 @@ const subject = "Password reset. https://thekrew.lab.com";
 let text = "This email is just for testing reason.";
 
 const getReset = (req, res) => {
-    let reciver = process.env.MAIL_TESTING;
-    let mailOptions = {
-        from: process.env.MAIL_USER,
-        to: reciver,
-        subject: subject,
-        text: text
-      };
-
-      transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log(error);
-          res.send({success: false});
-        } else {
-        //   console.log('Email sent: ' + info.response);
-          res.send({success: true});
-        }
-      });
+    if(req.headers["user"] == undefined) res.send({success: false});
+    else {
+        let reciver = process.env.MAIL_TESTING;
+        let mailOptions = {
+            from: process.env.MAIL_USER,
+            to: reciver,
+            subject: subject,
+            text: text
+          };
+          transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+              console.log(error);
+              res.send({success: false});
+            } else {
+            //   console.log('Email sent: ' + info.response);
+              res.send({success: true});
+            }
+          });
+    } 
 }
 
 module.exports = {
