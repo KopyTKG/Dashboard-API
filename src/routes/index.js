@@ -5,6 +5,7 @@ const DB = require('../controller/db.controller')
 
 let routes = async (app) => {
     router.get("/", Port.TestInit);
+    router.post("/auth", DB.verify);
     router.post("/getList", DB.getList);
     router.post("/getCalendar", DB.getCalendar);
     router.post("/login", DB.getUser);

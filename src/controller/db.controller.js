@@ -46,20 +46,6 @@ async function getData(sql) {
     return result = await dbQuery(sql);
 }
 
-
-async function verifyToken (req, res) {
-    if (!req.headers["token"]) res.send(createError.Unauthorized());
-    const token = (req.headers["token"]).split(" ")[1];
-    return payload = await verify(token, private);
-}
-function verify (token, secret) {
-    return new Promise (data => {
-        jwt.verify(token, secret, (err, payload) => {
-            if (err) data(404);
-            data(payload);
-        });
-    });
-}
 // ---------------------------------------------------
 // Post / Get requests
 
@@ -104,14 +90,16 @@ const getUser  =  (req, res) => {
                         }
                     )
                     
+                } else {
+                    res.send({success: false});
                 }
                 if(bcryptErr) {
-                    res.sendStatus(401);
+                    res.sendStatus(403);
                 }
             });
         }
         else {
-            res.sendStatus(403);
+            res.sendStatus(401);
         }
     })
     } catch (e) {
@@ -119,6 +107,17 @@ const getUser  =  (req, res) => {
     }
 }
 
+const verify = (req, res) => {
+    if (!req.headers["token"]) res.sendStatus(401);
+    const token = (req.headers["token"]).split(" ")[1];
+    try {
+        jwt.verify(token, private);
+        res.sendStatus(200);
+    }
+    catch (e) {
+        res.sendStatus(401);
+    }
+}
 
 
 
@@ -226,6 +225,7 @@ const getCalendar = (req, res) => {
 
 module.exports = {
     getUser,
+    verify,
     getList,
     getCalendar
 }
