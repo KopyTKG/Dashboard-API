@@ -1,12 +1,7 @@
+const sec = require("../debug/debug");
 
-/*
-
-    - Testing API input
-
-*/
-
-const TestInit = (req, res) => {
-    console.log(req);
+const PassGen = (req, res) => {
+    let pass = sec.Hash("toor", 10);
     let response = {
         headers: {
             method: "API response", 
@@ -14,14 +9,14 @@ const TestInit = (req, res) => {
             statusText: "OK"
         },
         body: {
-            data: [
-                "Hello"
-            ]
+            data: {
+                pass: pass
+            }
         }
     }
     res.send(response);
 }
 
 module.exports = {
-    TestInit
+    PassGen
 };

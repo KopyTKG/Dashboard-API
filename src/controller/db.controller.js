@@ -12,7 +12,7 @@ const private = fs.readFileSync('./src/env/private.key', "utf-8");
 
 // Connection setup
 const db = mysql.createConnection({
-    host    :   process.env.DB_IP,
+    host    :   process.env.DB_IP  ,
     port    :   process.env.DB_PORT,
     user    :   process.env.DB_USER,
     password:   process.env.DB_PASS,
@@ -129,6 +129,29 @@ const verify = (req, res) => {
     }
 }
 
+const DateTime = (inner) => {
+    let date  = new Date(inner);
+
+    let year        = date.getFullYear();
+    let month       = date.getMonth() + 1;
+    let monthPure   = date.getMonth();
+    let day         = date.getDate();
+    
+    let hours   = date.getHours();
+    let minutes = date.getMinutes();
+    let seconds = date.getSeconds();
+    
+    if (hours < 10)   hours   = "0" + hours;
+    if (minutes < 10) minutes = "0" + minutes;
+    if (seconds < 10) seconds = "0" + seconds;
+
+    return {
+                date: year+"."+month+"."+day,
+                time: hours+":"+minutes+":"+seconds,
+                formate: new Date(year,monthPure,day,hours, minutes, seconds)
+            };
+}
+
 
 
 /**
@@ -156,6 +179,9 @@ const getList = (req, res) => {
             getData(sqlCommand)
             .then((data) => {
                 data.forEach(el => {
+                    let start = DateTime(el["start"])["date"] + " " + DateTime(el["start"])["time"];
+                    let end   = DateTime(el["end"])["date"]   + " " + DateTime(el["end"])["time"];
+
                     let checked = ""
                     let val = ""
                     if(el["defaultChecked"] != 0) checked = "a"
@@ -165,7 +191,7 @@ const getList = (req, res) => {
                         defaultValue: val,
                         title: el["title"],
                         description: el["description"],
-                        date: el["date"]
+                        date: start +" - " + end
                     })
                 })
                 res.send(response);
@@ -181,7 +207,6 @@ const getList = (req, res) => {
     }
 
 }
-
 
 /**
  * getCalendar
@@ -208,19 +233,24 @@ const getCalendar = (req, res) => {
             getData(sqlCommand)
             .then((data) => {
                 data.forEach(el => {
-                    let split = el["date"].split(".");
-                    let date = split[1] +"."+ split[0]+"."+split[2];
+                    let start = DateTime(el["start"])["formate"];
+                    let end   = DateTime(el["end"])["formate"];
+
                     let allday = false
                     if(el["allday"] != 0) allday = true;
                     response.push({
-                        id: "\""+el["id"]+"\"",
+                        id: el["id"],
                         title: el["title"],
                         allday: allday,
-                        start: el["start"] + " " + date,
-                        end: el["end"] + " " + date
+                        desc: el["description"],
+                        start: start, //el["start"],
+                        end: end //el["end"]
                     })
                 })
                 res.send(response);
+            })
+            .catch((error) => {
+                console.log(error);
             })
         }
         catch (error) {
